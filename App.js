@@ -6,8 +6,10 @@
  * @flow strict-local
  */
 
-import React from 'react';
-import type {Node} from 'react';
+import React, {useEffect, useState} from 'react';
+ import { NativeModules } from 'react-native';
+  const { SpotifyRemoteModule } = NativeModules;
+
 import {
   SafeAreaView,
   ScrollView,
@@ -16,6 +18,7 @@ import {
   Text,
   useColorScheme,
   View,
+  Platform, TouchableOpacity, Image
 } from 'react-native';
 
 import {
@@ -26,91 +29,105 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
-/* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
- * LTI update could not be added via codemod */
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+const App = () => {
+ const [trackName, setTrackName] = useState('');
+ 
+ handleName = (text) => {
+  this.setState({ trackName: text })
+}
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const connectToRemoteApp = () => {
+    Platform.OS === 'android' && SpotifyRemoteModule.connect(true)
+  };
+  const playpause = () => {
+    Platform.OS === 'android' && SpotifyRemoteModule.onPlayPauseButtonClicked()
+  };
+  const onSubmit = async () => {
+    try {
+      const name = await SpotifyRemoteModule.onPlayPauseButtonClicked(
+      );
+      console.log(`Created a new event with id ${name}`);
+      setTrackName(name)
+    } catch (e) {
+      console.error(e);
+    }
+    
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor={'#e4e5ea'} />
+      <Text style={styles.title}>Spotify Demo</Text>
+      <Text style={styles.title}> Spotify remote player </Text>
+      <View style={styles.iconsContainer}>
+     
+        <TouchableOpacity onPress={() => connectToRemoteApp()}>
+          <Image
+          source={require('./images/connect.png')} 
+            // source={{
+            //   uri:  
+            //     // 'https://icons.iconarchive.com/icons/google/noto-emoji-smileys/256/10101-alien-icon.png',
+            // }}
+            resizeMode={'contain'}
+            style={styles.icon}
+          />
+          <Text>connect</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() =>onSubmit()}>
+          <Image
+          source={require('./images/play_pause_button.png')} 
+            
+            resizeMode={'contain'}
+            style={styles.icon}
+          />
+          <Text>Play/Pause</Text>
+        </TouchableOpacity>
+        <Text>{trackName}</Text>
+     
+       
+      </View>
+    </View>
   );
 };
-
+// Styles are unchanged
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    backgroundColor: '#e4e5ea',
+    flex: 1,
+    paddingTop: 50,
+    alignItems: 'center',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  title: {
+    fontSize: 20,
+    color: '#000',
+    marginVertical: 25,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  iconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%',
+    paddingHorizontal: 50,
   },
-  highlight: {
-    fontWeight: '700',
+  warningText: {
+    color: 'red',
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
+    textAlign: 'center',
+  },
+  spacing: {
+    marginVertical: 10,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '40%',
+  },
+  icon: {
+    height: 40,
+    width: 40,
+    marginBottom: 15,
   },
 });
 

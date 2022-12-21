@@ -255,6 +255,8 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation files('../spotify_remote/libs/spotify-app-remote-release-0.7.2.aar')
+    implementation "com.google.code.gson:gson:2.8.9"
 
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.fbjni'
